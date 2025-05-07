@@ -21,12 +21,16 @@ export class AuthService {
   }
 
   async signup(email: string, password: string) {
-    const hash = await bcrypt.hash(password, 10);
-    const user = this.userRepo.create({ email, hash });
-    await this.userRepo.save(user);
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
 
-    return this.signToken(user.id, user.email);
-  }
+    const user = this.userRepo.create({
+      email: email,
+      hash,
+    });
+
+  return this.userRepo.save(user);
+}
 
   async signin(email: string, password: string) {
     const user = await this.userRepo.findOneBy({ email });
